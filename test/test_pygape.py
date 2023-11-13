@@ -1,5 +1,5 @@
 ###
-# How to start: python -m unittest test.test_pygape.Txt2StructTestCase -v
+# How to start: python -m unittest test.test_pygape.PyGapeTestCase -v
 ###
 
 import unittest
