@@ -1,6 +1,7 @@
 from typing import List, Callable
 from dataclasses import dataclass
 from enum import Enum
+import logging
 import textwrap
 
 
@@ -37,30 +38,23 @@ class SortPrompt:
             Expected output:
             {{
                 "result": ["pizza", "bicycle", "racing horse", "house"],
+                "reason": "A house is more expensive than a racing horse. A racing horse is more expensive than a bicycle. A bicycle is more expensive than a pizza.",
                 "sort_order": "ascending",
-                "sort_criterion": "purchasing price",
-                "reason": "A house is more expensive than a racing horse. A racing horse is more expensive than a bicycle. A bicycle is more expensive than a pizza."
+                "sort_criterion": "purchasing price"
             }}
             ### Input
             {items}""".format(system_role=self.system_role, order=self.order.name, criterion=self.criterion, items=items)  
         return textwrap.dedent(prompt).strip()
 
-def sort(prompt: str, completion: Callable, print_prompt=False) -> str:
-    
-    if print_prompt:
-        print(prompt)
-    
+def sort(prompt: str, completion: Callable[[str], any]) -> dict:
+    logging.debug(prompt)
+    response = {}
     try:
-        response = completion(prompt)
-            
-    #except json.JSONDecodeError as e:
-    #    # Handle JSON decode error (e.g., JSON is malformed)
-    #    print(f"txt2struct.sort: JSONDecodeError: {e.msg}")
-    #except TypeError as e:
-    #    # Handle wrong type error (e.g., passing a non-string/non-bytes)
-    #    print(f"txt2struct.sort: TypeError: {e}")    
+        logging.debug("pygape.sort: Sending prompt to completion API")
+        response = completion(prompt) # return type: json object as a dict
+        logging.debug(response)  
     except Exception as e:
-        print(f"txt2struct.sort: Error: {e}")
+        logging.error(e)
     return response
 
 
@@ -96,14 +90,15 @@ class FilterPrompt:
             {items}""".format(system_role=self.system_role, criterion=self.criterion, items=items)
         return textwrap.dedent(prompt).strip()
 
-def filter(prompt: str, completion: Callable, print_prompt=False) -> str:
-    if print_prompt:
-        print(prompt)
-    
+def filter(prompt: str, completion: Callable[[str], any]) -> dict:
+    logging.debug(prompt)
+    response = {}
     try:
+        logging.debug("pygape.filter: Sending prompt to completion API")
         response = completion(prompt)
+        logging.debug(response)
     except Exception as e:
-        print(f"Exception: {e}")
+        logging.error(e)
     return response
 
 
@@ -141,14 +136,15 @@ class FindPrompt:
         return textwrap.dedent(prompt).strip()   
     
 
-def find(prompt: str, completion: Callable, print_prompt=False) -> str:
-    if print_prompt:
-        print(prompt)
-    
+def find(prompt: str, completion: Callable[[str], any]) -> dict:
+    logging.debug(prompt)
+    response = {}
     try:
+        logging.debug("pygape.find: Sending prompt to completion API")
         response = completion(prompt)
+        logging.debug(response)
     except Exception as e:
-        print(f"Exception: {e}")
+        logging.error(e)
     return response
 
 
@@ -179,61 +175,13 @@ class ConditionPrompt:
             {statement}""".format(system_role=self.system_role, statement=self.statement)
         return textwrap.dedent(prompt).strip()
     
-def condition(prompt: str, completion: Callable, print_prompt=False) -> str:
-    if print_prompt:
-        print(prompt)
-        
+def condition(prompt: str, completion: Callable[[str], any]) -> dict:
+    logging.debug(prompt)
+    response = {}
     try:
+        logging.debug("pygape.condition: Sending prompt to completion API")
         response = completion(prompt)
+        logging.debug(response)
     except Exception as e:
-        print(f"Exception: {e}")
+        logging.error(e)
     return response
-            
-
-
-
-
-
-"""
-def sort(concepts_to_sort: List[str]) -> any:
-    
-    sort_function = [
-        {
-            "name": "sort",
-            "description": "Sorts a list of concepts according to a given criterion and order",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "concepts_to_sort": {
-                        "type": "string",
-                        "description": "A comma-separated list of concepts that should be sorted"
-                    },
-                    "sort_criterion": {
-                        "type": "string",
-                        "description": "The criterion by which to sort the concepts"
-                    },
-                    "order": {
-                        "type": "string",
-                        "enum": ["ascending", "descending"],
-                        "description": "The sort order, either ascending or descending",
-                    }
-                }
-            }
-        }
-    ]
-    
-    concepts_str = ", ".join(concepts_to_sort)
-    response = openai.ChatCompletion.create(
-        model = 'gpt-3.5-turbo',
-        messages = [{'role': 'user', 'content': concepts_str}],
-        functions = sort_function,
-        function_call = 'auto'
-    )
-
-    # Loading the response as a JSON object
-    json_response = json.loads(response['choices'][0]['message']['function_call']['arguments'])
-    print(json_response)
-    
-    
-    return json_response
-"""

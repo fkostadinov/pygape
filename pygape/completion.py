@@ -1,18 +1,31 @@
-import openai
+import logging
+import json
+from openai import OpenAI
 
 def openai_completion(prompt: str) -> any:
+    response = (None, None, None)
     try:
-        openai_response = openai.ChatCompletion.create(
-            model = "gpt-3.5-turbo-1106",
+        client = OpenAI()
+        completion = client.chat.completions.create(
+            model='gpt-3.5-turbo',
             messages = [
                 {"role": "user", "content": prompt},
             ],
-            # Note: If we set the temperature to 0.0 then the results are not always consistent.
-            # Let's try to set it instead to an extremely small value above 0.
-            # See here: https://community.openai.com/t/why-the-api-output-is-inconsistent-even-after-the-temperature-is-set-to-0/329541/9
-            temperature = 0.00000001
-        )
+            temperature=0.00000001)
+
+        # Async
+        #from openai import AsyncOpenAI
+        #client = AsyncOpenAI()
+        #completion = await client.chat.completions.create(model="gpt-3.5-turbo", messages=[{"role": "user", "content": "Hello world"}])
+
+        # Extract the json string response from the OpenAIObject
+        json_str = completion.choices[0].message.content
+
+        # Creaate a json object of type dict. According to prompt conventions, each json objct
+        # should at least have a key "result" and "reason" plus optionally other keys
+        response = json.loads(json_str)
+
     except Exception as e:
-        print(f"completion.openai_completion: Exception: {e}")
-        
-    return openai_response
+        logging.error(e)
+
+    return response
