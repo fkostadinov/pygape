@@ -47,6 +47,29 @@ class SortPrompt:
         return textwrap.dedent(prompt).strip()
 
 def sort(prompt: str, completion: Callable[[str], any]) -> dict:
+    """Sorts a list of concepts (strings) according to a given criterion
+
+    Parameters
+    ----------
+    prompt : str
+        A prompt string assembled from SortPrompt. Defines:
+        1. a list of concepts to be sorted,
+        2. a sort order (either ascending or descending)
+        3. a sort criterion.
+
+    completion : Callable[[str], any]
+        A completion function that accepts a prompt as a string and returns a json object
+
+    Returns
+    -------
+    dict
+        A json object as the output of the language model.
+        The dict must contain at least two key-value pairs:
+        1. "result": [...the list of sorted concepts...]
+        2. "reason": "...the reasoning provided for the sorting decisions..."
+        3. (Optional) Further key-value pairs such as the sort order or the sort criterion
+    """
+    
     logging.debug(prompt)
     response = {}
     try:
@@ -91,6 +114,28 @@ class FilterPrompt:
         return textwrap.dedent(prompt).strip()
 
 def filter(prompt: str, completion: Callable[[str], any]) -> dict:
+    """Filters a list of concepts (strings) according to a given criterion
+
+    Parameters
+    ----------
+    prompt : str
+        A prompt string assembled from FilterPrompt. Defines:
+        1. a list of concepts to be filtered,
+        2. a filter criterion.
+
+    completion : Callable[[str], any]
+        A completion function that accepts a prompt as a string and returns a json object
+
+    Returns
+    -------
+    dict
+        A json object as the output of the language model.
+        The dict must contain at least two key-value pairs:
+        1. "result": [...the list of filtered concepts...]
+        2. "reason": "[...a list of reasons for filter deicions...]"
+        3. (Optional) Further key-value pairs such as the filter criterion applied
+    """
+
     logging.debug(prompt)
     response = {}
     try:
@@ -114,13 +159,13 @@ class FindPrompt:
         prompt = """
             ### Instructions
             You are {system_role}.
-            Your task is to find the first item in the list that fulfills the criterion: {criterion}.
+            Your task is to find the first item in the list that matches the criterion: {criterion}.
             Also provide a reason why you picked this item but not any of the other items in the list.
             Return the output as a JSON object in the format:
             {{
-                "result": "the first item found in the list that fulfills the given criterion",
+                "result": "the first item found in the list that matches the given criterion",
                 "reason": "reason why you picked this item and not any others prior to it",
-                "filter_criterion": "the criterion applied"
+                "matching_criterion": "the matching criterion applied"
             }}
             ### Example
             List of items ["Paris", "Rome", "Canberra", "Singapore", "Albuquerque", "Berlin", "London", "Krakow", "Dar Es Salaam"]
@@ -129,7 +174,7 @@ class FindPrompt:
             {{
                 "result": "Albuquerque",
                 "reason": "Albuquerque is the first item in the list that is not the capital of its country (USA). Also Krakow is not the capital of Poland, and Dar Es Salaam is not the capital of Tanzania, but they occurr later in the list.",
-                "filter_criterion": "is not the capital city of the country it belongs to" 
+                "matching_criterion": "is not the capital city of the country it belongs to" 
             }}
             ### Input
             {items}""".format(system_role=self.system_role, criterion=self.criterion, items=items)
@@ -137,6 +182,28 @@ class FindPrompt:
     
 
 def find(prompt: str, completion: Callable[[str], any]) -> dict:
+    """Finds the first concept (list item) in a list of concept that matches a certain criterion 
+
+    Parameters
+    ----------
+    prompt : str
+        A prompt string assembled from FindPrompt. Defines:
+        1. a list of concepts to be searched,
+        2. a matching criterion.
+
+    completion : Callable[[str], any]
+        A completion function that accepts a prompt as a string and returns a json object
+
+    Returns
+    -------
+    dict
+        A json object as the output of the language model.
+        The dict must contain at least two key-value pairs:
+        1. "result": "the first concept (item) found matching in the list"
+        2. "reason": "the reasoning provided why the item matches"
+        3. (Optional) Further key-value pairs such as the matching criterion applied
+    """
+
     logging.debug(prompt)
     response = {}
     try:
@@ -176,6 +243,27 @@ class ConditionPrompt:
         return textwrap.dedent(prompt).strip()
     
 def condition(prompt: str, completion: Callable[[str], any]) -> dict:
+    """Returns either True or False given a certain statement
+
+    Parameters
+    ----------
+    prompt : str
+        A prompt string assembled from ConditionPrompt. Defines:
+        1. a statement that can either be true or false
+
+    completion : Callable[[str], any]
+        A completion function that accepts a prompt as a string and returns a json object
+
+    Returns
+    -------
+    dict
+        A json object as the output of the language model.
+        The dict must contain at least two key-value pairs:
+        1. "result": "True" OR "False"
+        2. "reason": "the reasoning provided why the statement is true or false"
+        3. (Optional) Further key-value pairs
+    """
+
     logging.debug(prompt)
     response = {}
     try:
