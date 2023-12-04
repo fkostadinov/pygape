@@ -33,4 +33,4 @@ This approach can be used in many ways. Imagine having a list of concepts (repre
 
 Welcome to the world of __Generative AI-Augmented Program Execution__.
 
-For more info visit http://fabian-kostadinov.github.io/2023/11/09/genai-augmented-program-execution/.
+For more info visit https://fabian-kostadinov.github.io/2023/11/09/genai-augmented-program-execution/.
