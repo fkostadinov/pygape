@@ -5,6 +5,18 @@ import logging
 import textwrap
 
 
+# Internal function, don't call this directly
+def _run_prompt(prompt: str, completion: Callable[[str], any]) -> dict:
+    response = {}
+    try:
+        logging.debug(prompt)
+        response = completion(prompt) # return type: json object as a dict
+        logging.debug(response)
+    except Exception as e:
+        logging.error(e)
+    return response            
+
+
 
 class SortOrder(Enum):
     ascending = 1
@@ -69,16 +81,10 @@ def sort(prompt: str, completion: Callable[[str], any]) -> dict:
         2. "reason": "...the reasoning provided for the sorting decisions..."
         3. (Optional) Further key-value pairs such as the sort order or the sort criterion
     """
-    
-    logging.debug(prompt)
-    response = {}
-    try:
-        logging.debug("pygape.sort: Sending prompt to completion API")
-        response = completion(prompt) # return type: json object as a dict
-        logging.debug(response)  
-    except Exception as e:
-        logging.error(e)
+    logging.debug("pygape.sort: Sending prompt to completion API")
+    response = _run_prompt(prompt, completion) # return type: json object as a dict
     return response
+
 
 
 @dataclass
@@ -135,17 +141,9 @@ def filter(prompt: str, completion: Callable[[str], any]) -> dict:
         2. "reason": "[...a list of reasons for filter deicions...]"
         3. (Optional) Further key-value pairs such as the filter criterion applied
     """
-
-    logging.debug(prompt)
-    response = {}
-    try:
-        logging.debug("pygape.filter: Sending prompt to completion API")
-        response = completion(prompt)
-        logging.debug(response)
-    except Exception as e:
-        logging.error(e)
+    logging.debug("pygape.filter: Sending prompt to completion API")
+    response = _run_prompt(prompt, completion) # return type: json object as a dict
     return response
-
 
 
 @dataclass
@@ -179,7 +177,6 @@ class FindPrompt:
             ### Input
             {items}""".format(system_role=self.system_role, criterion=self.criterion, items=items)
         return textwrap.dedent(prompt).strip()   
-    
 
 def find(prompt: str, completion: Callable[[str], any]) -> dict:
     """Finds the first concept (list item) in a list of concept that matches a certain criterion 
@@ -203,17 +200,9 @@ def find(prompt: str, completion: Callable[[str], any]) -> dict:
         2. "reason": "the reasoning provided why the item matches"
         3. (Optional) Further key-value pairs such as the matching criterion applied
     """
-
-    logging.debug(prompt)
-    response = {}
-    try:
-        logging.debug("pygape.find: Sending prompt to completion API")
-        response = completion(prompt)
-        logging.debug(response)
-    except Exception as e:
-        logging.error(e)
+    logging.debug("pygape.find: Sending prompt to completion API")
+    response = _run_prompt(prompt, completion) # return type: json object as a dict
     return response
-
 
 
 @dataclass
@@ -241,7 +230,7 @@ class ConditionPrompt:
             ### Input
             {statement}""".format(system_role=self.system_role, statement=self.statement)
         return textwrap.dedent(prompt).strip()
-    
+
 def condition(prompt: str, completion: Callable[[str], any]) -> dict:
     """Returns either True or False given a certain statement
 
@@ -263,13 +252,6 @@ def condition(prompt: str, completion: Callable[[str], any]) -> dict:
         2. "reason": "the reasoning provided why the statement is true or false"
         3. (Optional) Further key-value pairs
     """
-
-    logging.debug(prompt)
-    response = {}
-    try:
-        logging.debug("pygape.condition: Sending prompt to completion API")
-        response = completion(prompt)
-        logging.debug(response)
-    except Exception as e:
-        logging.error(e)
+    logging.debug("pygape.condition: Sending prompt to completion API")
+    response = _run_prompt(prompt, completion) # return type: json object as a dict
     return response
