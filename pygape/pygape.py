@@ -179,7 +179,7 @@ class FindPrompt:
         return textwrap.dedent(prompt).strip()   
 
 def find(prompt: str, completion: Callable[[str], any]) -> dict:
-    """Finds the first concept (list item) in a list of concept that matches a certain criterion 
+    """Finds the first concept (list item) in a list of concepts that matches a certain criterion 
 
     Parameters
     ----------
@@ -206,7 +206,7 @@ def find(prompt: str, completion: Callable[[str], any]) -> dict:
 
 
 @dataclass
-class ConditionPrompt:
+class TruthyPrompt:
     system_role: str
     statement: str
 
@@ -231,13 +231,13 @@ class ConditionPrompt:
             {statement}""".format(system_role=self.system_role, statement=self.statement)
         return textwrap.dedent(prompt).strip()
 
-def condition(prompt: str, completion: Callable[[str], any]) -> dict:
+def truthy(prompt: str, completion: Callable[[str], any]) -> dict:
     """Returns either True or False given a certain statement
 
     Parameters
     ----------
     prompt : str
-        A prompt string assembled from ConditionPrompt. Defines:
+        A prompt string assembled from TruthyPrompt. Defines:
         1. a statement that can either be true or false
 
     completion : Callable[[str], any]
@@ -251,6 +251,65 @@ def condition(prompt: str, completion: Callable[[str], any]) -> dict:
         1. "result": "True" OR "False"
         2. "reason": "the reasoning provided why the statement is true or false"
         3. (Optional) Further key-value pairs
+    """
+    logging.debug("pygape.truthy: Sending prompt to completion API")
+    response = _run_prompt(prompt, completion) # return type: json object as a dict
+    return response
+
+
+
+@dataclass
+class ConditionPrompt:
+    system_role: str
+    statement: str
+    criterion: str
+
+    def to_str(self) -> str:
+        prompt = """
+            ### Instructions
+            You are {system_role}.
+            Your task is to decide if the statement given below fulfills the following criterion or not: {criterion}.
+            Also provide a reason why the statement fulfills the criterion or not.
+            Return the output as a JSON object in the format:
+            {{
+                "result": "true OR false",
+                "reason": "The reason for your decision",
+                "criterion": "The criterion applied"
+            }}
+            ### Example
+            Statement: Lilies are delicate flowers - give them too much water and they wil die!
+            Criterion: The statement contains reference to at least one type of plant, but there may also be references to other concepts.
+            Expected output:
+            {{
+                "result": "true",
+                "reason": "The statement refers to lilies which are a type of plant.",
+                "criterion": Contains a reference to at least one type of plant"
+            }}
+            ### Input
+            {statement}""".format(system_role=self.system_role, statement=self.statement, criterion=self.criterion)
+        return textwrap.dedent(prompt).strip()
+
+def condition(prompt: str, completion: Callable[[str], any]) -> dict:
+    """Returns True if a given statement fulfills a given criterion, and False otherwise
+
+    Parameters
+    ----------
+    prompt : str
+        A prompt string assembled from ConditionPrompt. Defines:
+        1. a statement that is evaluated according to a given criterion
+        2. a criterion to apply to the given statement
+
+    completion : Callable[[str], any]
+        A completion function that accepts a prompt as a string and returns a json object
+
+    Returns
+    -------
+    dict
+        A json object as the output of the language model.
+        The dict must contain at least two key-value pairs:
+        1. "result": "True" OR "False"
+        2. "reason": "the reasoning provided why the statement is true or false"
+        3. (Optional) Further key-value pairs such as the criterion applied
     """
     logging.debug("pygape.condition: Sending prompt to completion API")
     response = _run_prompt(prompt, completion) # return type: json object as a dict

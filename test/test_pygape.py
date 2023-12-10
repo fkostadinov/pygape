@@ -13,6 +13,7 @@ from pygape.pygape import \
     sort, SortPrompt, SortOrder, \
     filter, FilterPrompt, \
     find, FindPrompt, \
+    truthy, TruthyPrompt, \
     condition, ConditionPrompt
 
 
@@ -88,11 +89,32 @@ class PyGapeTestCase(unittest.TestCase):
         self.assertEqual(found_item, expected)
 
 
+    def test_truthy(self):
+        logging.info("################################ test_truthy ################################ ")
+        truthy_params = TruthyPrompt(
+            system_role = "a fact checking assistant",
+            statement = "Planet earth is the largest planet in the solar system."
+        )
+        
+        prompt = truthy_params.to_str()
+        json_response = truthy(prompt, openai_completion)
+        bool_str = json_response["result"] # type: str
+        if bool_str.lower() == "true":
+            response = True
+        elif bool_str.lower() == "false":
+            response = False
+        else:
+            self.fail(f"Failed to convert result from LM service to a boolean: {bool_str}")
+        
+        self.assertFalse(response) # Above statement should be recognized as False   
+
+
     def test_condition(self):
         logging.info("################################ test_condition ################################ ")
         condition_params = ConditionPrompt(
             system_role = "a fact checking assistant",
-            statement = "Planet earth is the largest planet in the solar system."
+            statement = "Green elephants' favorite food is cotton candy.",
+            criterion = "The given statement must talk of fantasy animals."
         )
         
         prompt = condition_params.to_str()
