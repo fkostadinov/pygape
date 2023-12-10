@@ -113,8 +113,8 @@ class PyGapeTestCase(unittest.TestCase):
         logging.info("################################ test_condition ################################ ")
         condition_params = ConditionPrompt(
             system_role = "a fact checking assistant",
-            statement = "Green elephants' favorite food is cotton candy.",
-            criterion = "The given statement must talk of fantasy animals."
+            statement = "Unicorns' favorite food is cotton candy.",
+            criterion = "The given statement must refer to at least one type of a mythological animal."
         )
         
         prompt = condition_params.to_str()
@@ -127,7 +127,7 @@ class PyGapeTestCase(unittest.TestCase):
         else:
             self.fail(f"Failed to convert result from LM service to a boolean: {bool_str}")
         
-        self.assertFalse(response) # Above statement should be recognized as False
+        self.assertTrue(response) # Above statement should be recognized as True
 
         
         

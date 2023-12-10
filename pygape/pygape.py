@@ -283,7 +283,7 @@ class ConditionPrompt:
             {{
                 "result": "true",
                 "reason": "The statement refers to lilies which are a type of plant.",
-                "criterion": Contains a reference to at least one type of plant"
+                "criterion": "Contains a reference to at least one type of plant"
             }}
             ### Input
             {statement}""".format(system_role=self.system_role, statement=self.statement, criterion=self.criterion)
